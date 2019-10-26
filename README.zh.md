@@ -1,3 +1,5 @@
+<p align = "center"> <img width = "350％"  src = "logo/cover.jpg"/> </p>
+
 **[English](https://github.com/lornatang/deep-leraning-with-python3/README_zh.md)**
 
 # Deep Learning with Python
