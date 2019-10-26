@@ -1,15 +1,12 @@
 <p align = "center"> <img width = "350％"  src = "logo/cover.jpg"/> </p>
 
-
-**[中文](https://github.com/lornatang/deep-leraning-with-python3/README_zh.md)**
-
 # Deep Learning with Python
 
 ## Reference
 
 **[François Chollet](https://github.com/fchollet)**
 
-These code use Python 3.7 and Keras 2.3.1.
+These code use Python 3.7 and Keras 2.1.8.
 
 ## Table of contents
 
