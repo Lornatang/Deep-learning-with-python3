@@ -1,6 +1,6 @@
-[中文](https://github.com/lornatang/deep-leraning-with-python3/README_zh.md)
+**[中文](https://github.com/lornatang/deep-leraning-with-python3/README_zh.md)**
 
-# Companion Jupyter notebooks for the book "Deep Learning with Python"
+# Deep Learning with Python
 
 ## Reference
 
