@@ -5,8 +5,8 @@
 
 
 import keras
-keras.__version__
 
+keras.__version__
 
 # # Overfitting and underfitting
 # 
@@ -52,12 +52,14 @@ import numpy as np
 
 (train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
 
+
 def vectorize_sequences(sequences, dimension=10000):
-    # Create an all-zero matrix of shape (len(sequences), dimension)
-    results = np.zeros((len(sequences), dimension))
-    for i, sequence in enumerate(sequences):
-        results[i, sequence] = 1.  # set specific indices of results[i] to 1s
-    return results
+  # Create an all-zero matrix of shape (len(sequences), dimension)
+  results = np.zeros((len(sequences), dimension))
+  for i, sequence in enumerate(sequences):
+    results[i, sequence] = 1.  # set specific indices of results[i] to 1s
+  return results
+
 
 # Our vectorized training data
 x_train = vectorize_sequences(train_data)
@@ -66,7 +68,6 @@ x_test = vectorize_sequences(test_data)
 # Our vectorized labels
 y_train = np.asarray(train_labels).astype('float32')
 y_test = np.asarray(test_labels).astype('float32')
-
 
 # # Fighting overfitting
 # 
@@ -111,7 +112,6 @@ original_model.compile(optimizer='rmsprop',
                        loss='binary_crossentropy',
                        metrics=['acc'])
 
-
 # Now let's try to replace it with this smaller network:
 
 # In[5]:
@@ -126,8 +126,7 @@ smaller_model.compile(optimizer='rmsprop',
                       loss='binary_crossentropy',
                       metrics=['acc'])
 
-
-# 
+#
 # Here's a comparison of the validation losses of the original network and the smaller network. The dots are the validation loss values of 
 # the smaller network, and the crosses are the initial network (remember: a lower validation loss signals a better model).
 
@@ -139,7 +138,6 @@ original_hist = original_model.fit(x_train, y_train,
                                    batch_size=512,
                                    validation_data=(x_test, y_test))
 
-
 # In[7]:
 
 
@@ -148,14 +146,12 @@ smaller_model_hist = smaller_model.fit(x_train, y_train,
                                        batch_size=512,
                                        validation_data=(x_test, y_test))
 
-
 # In[8]:
 
 
 epochs = range(1, 21)
 original_val_loss = original_hist.history['val_loss']
 smaller_model_val_loss = smaller_model_hist.history['val_loss']
-
 
 # In[9]:
 
@@ -172,8 +168,7 @@ plt.legend()
 
 plt.show()
 
-
-# 
+#
 # As you can see, the smaller network starts overfitting later than the reference one (after 6 epochs rather than 4) and its performance 
 # degrades much more slowly once it starts overfitting.
 # 
@@ -191,7 +186,6 @@ bigger_model.compile(optimizer='rmsprop',
                      loss='binary_crossentropy',
                      metrics=['acc'])
 
-
 # In[12]:
 
 
@@ -200,8 +194,7 @@ bigger_model_hist = bigger_model.fit(x_train, y_train,
                                      batch_size=512,
                                      validation_data=(x_test, y_test))
 
-
-# Here's how the bigger network fares compared to the reference one. The dots are the validation loss values of the bigger network, and the 
+# Here's how the bigger network fares compared to the reference one. The dots are the validation loss values of the bigger network, and the
 # crosses are the initial network.
 
 # In[26]:
@@ -217,8 +210,7 @@ plt.legend()
 
 plt.show()
 
-
-# 
+#
 # The bigger network starts overfitting almost right away, after just one epoch, and overfits much more severely. Its validation loss is also 
 # more noisy.
 # 
@@ -238,8 +230,7 @@ plt.legend()
 
 plt.show()
 
-
-# As you can see, the bigger network gets its training loss near zero very quickly. The more capacity the network has, the quicker it will be 
+# As you can see, the bigger network gets its training loss near zero very quickly. The more capacity the network has, the quicker it will be
 # able to model the training data (resulting in a low training loss), but the more susceptible it is to overfitting (resulting in a large 
 # difference between the training and validation loss).
 
@@ -278,7 +269,6 @@ l2_model.add(layers.Dense(16, kernel_regularizer=regularizers.l2(0.001),
                           activation='relu'))
 l2_model.add(layers.Dense(1, activation='sigmoid'))
 
-
 # In[18]:
 
 
@@ -286,8 +276,7 @@ l2_model.compile(optimizer='rmsprop',
                  loss='binary_crossentropy',
                  metrics=['acc'])
 
-
-# `l2(0.001)` means that every coefficient in the weight matrix of the layer will add `0.001 * weight_coefficient_value` to the total loss of 
+# `l2(0.001)` means that every coefficient in the weight matrix of the layer will add `0.001 * weight_coefficient_value` to the total loss of
 # the network. Note that because this penalty is _only added at training time_, the loss for this network will be much higher at training 
 # than at test time.
 # 
@@ -300,7 +289,6 @@ l2_model_hist = l2_model.fit(x_train, y_train,
                              epochs=20,
                              batch_size=512,
                              validation_data=(x_test, y_test))
-
 
 # In[30]:
 
@@ -315,8 +303,7 @@ plt.legend()
 
 plt.show()
 
-
-# 
+#
 # 
 # As you can see, the model with L2 regularization (dots) has become much more resistant to overfitting than the reference model (crosses), 
 # even though both models have the same number of parameters.
@@ -333,7 +320,6 @@ regularizers.l1(0.001)
 
 # L1 and L2 regularization at the same time
 regularizers.l1_l2(l1=0.001, l2=0.001)
-
 
 # ## Adding dropout
 # 
@@ -355,8 +341,7 @@ regularizers.l1_l2(l1=0.001, l2=0.001)
 # At training time: we drop out 50% of the units in the output
 layer_output *= np.randint(0, high=2, size=layer_output.shape)
 
-
-# 
+#
 # At test time, we would be scaling the output down by the dropout rate. Here we scale by 0.5 (because we were previous dropping half the 
 # units):
 
@@ -366,8 +351,7 @@ layer_output *= np.randint(0, high=2, size=layer_output.shape)
 # At test time:
 layer_output *= 0.5
 
-
-# 
+#
 # Note that this process can be implemented by doing both operations at training time and leaving the output unchanged at test time, which is 
 # often the way it is implemented in practice:
 
@@ -379,8 +363,7 @@ layer_output *= np.randint(0, high=2, size=layer_output.shape)
 # Note that we are scaling *up* rather scaling *down* in this case
 layer_output /= 0.5
 
-
-# 
+#
 # This technique may seem strange and arbitrary. Why would this help reduce overfitting? Geoff Hinton has said that he was inspired, among 
 # other things, by a fraud prevention mechanism used by banks -- in his own words: _"I went to my bank. The tellers kept changing and I asked 
 # one of them why. He said he didn’t know but they got moved around a lot. I figured it must be because it would require cooperation 
@@ -396,7 +379,6 @@ layer_output /= 0.5
 
 
 model.add(layers.Dropout(0.5))
-
 
 # Let's add two `Dropout` layers in our IMDB network to see how well they do at reducing overfitting:
 
@@ -414,7 +396,6 @@ dpt_model.compile(optimizer='rmsprop',
                   loss='binary_crossentropy',
                   metrics=['acc'])
 
-
 # In[23]:
 
 
@@ -422,7 +403,6 @@ dpt_model_hist = dpt_model.fit(x_train, y_train,
                                epochs=20,
                                batch_size=512,
                                validation_data=(x_test, y_test))
-
 
 # Let's plot the results:
 
@@ -439,8 +419,7 @@ plt.legend()
 
 plt.show()
 
-
-# 
+#
 # Again, a clear improvement over the reference network.
 # 
 # To recap: here the most common ways to prevent overfitting in neural networks:

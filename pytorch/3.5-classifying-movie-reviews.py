@@ -1,27 +1,28 @@
-#!/usr/bin/env python
-# coding: utf-8
+# Copyright 2019 Lorna Authors. All Rights Reserved.
+# Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
 
-# In[20]:
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torch.utils.data as data
+import torchvision
+import torchvision.transforms as transforms
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-import keras
-
-keras.__version__
-
-# # Classifying movie reviews: a binary classification example
-# 
-# This notebook contains the code samples found in Chapter 3, Section 5 of [Deep Learning with Python](https://www.manning.com/books/deep-learning-with-python?a_aid=keras&a_bid=76564dff). Note that the original text features far more content, in particular further explanations and figures: in this notebook, you will only find source code and related comments.
-# 
-# ----
-# 
-# 
-# Two-class classification, or binary classification, may be the most widely applied kind of machine learning problem. In this example, we 
-# will learn to classify movie reviews into "positive" reviews and "negative" reviews, just based on the text content of the reviews.
-
-# ## The IMDB dataset
-# 
-# 
-# We'll be working with "IMDB dataset", a set of 50,000 highly-polarized reviews from the Internet Movie Database. They are split into 25,000 
+# We'll be working with "IMDB dataset", a set of 50,000 highly-polarized reviews from the Internet Movie Database. They are split into 25,000
 # reviews for training and 25,000 reviews for testing, each set consisting in 50% negative and 50% positive reviews.
 # 
 # Why do we have these two separate training and test sets? You should never test a machine learning model on the same data that you used to 
@@ -43,7 +44,8 @@ from keras.datasets import imdb
 
 (train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
 
-#
+
+# 
 # The argument `num_words=10000` means that we will only keep the top 10,000 most frequently occurring words in the training data. Rare words 
 # will be discarded. This allows us to work with vector data of manageable size.
 # 
@@ -55,10 +57,12 @@ from keras.datasets import imdb
 
 train_data[0]
 
+
 # In[23]:
 
 
 train_labels[0]
+
 
 # Since we restricted ourselves to the top 10,000 most frequent words, no word index will exceed 10,000:
 
@@ -66,6 +70,7 @@ train_labels[0]
 
 
 max([max(sequence) for sequence in train_data])
+
 
 # For kicks, here's how you can quickly decode one of these reviews back to English words:
 
@@ -80,10 +85,12 @@ reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
 # because 0, 1 and 2 are reserved indices for "padding", "start of sequence", and "unknown".
 decoded_review = ' '.join([reverse_word_index.get(i - 3, '?') for i in train_data[0]])
 
+
 # In[26]:
 
 
 decoded_review
+
 
 # ## Preparing the data
 # 
@@ -104,19 +111,18 @@ decoded_review
 
 import numpy as np
 
-
 def vectorize_sequences(sequences, dimension=10000):
-  # Create an all-zero matrix of shape (len(sequences), dimension)
-  results = np.zeros((len(sequences), dimension))
-  for i, sequence in enumerate(sequences):
-    results[i, sequence] = 1.  # set specific indices of results[i] to 1s
-  return results
-
+    # Create an all-zero matrix of shape (len(sequences), dimension)
+    results = np.zeros((len(sequences), dimension))
+    for i, sequence in enumerate(sequences):
+        results[i, sequence] = 1.  # set specific indices of results[i] to 1s
+    return results
 
 # Our vectorized training data
 x_train = vectorize_sequences(train_data)
 # Our vectorized test data
 x_test = vectorize_sequences(test_data)
+
 
 # Here's what our samples look like now:
 
@@ -124,6 +130,7 @@ x_test = vectorize_sequences(test_data)
 
 
 x_train[0]
+
 
 # We should also vectorize our labels, which is straightforward:
 
@@ -133,6 +140,7 @@ x_train[0]
 # Our vectorized labels
 y_train = np.asarray(train_labels).astype('float32')
 y_test = np.asarray(test_labels).astype('float32')
+
 
 # Now our data is ready to be fed into a neural network.
 
@@ -188,7 +196,8 @@ model.add(layers.Dense(16, activation='relu', input_shape=(10000,)))
 model.add(layers.Dense(16, activation='relu'))
 model.add(layers.Dense(1, activation='sigmoid'))
 
-#
+
+# 
 # Lastly, we need to pick a loss function and an optimizer. Since we are facing a binary classification problem and the output of our network 
 # is a probability (we end our network with a single-unit layer with a sigmoid activation), is it best to use the `binary_crossentropy` loss. 
 # It isn't the only viable choice: you could use, for instance, `mean_squared_error`. But crossentropy is usually the best choice when you 
@@ -205,7 +214,8 @@ model.compile(optimizer='rmsprop',
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
-# We are passing our optimizer, loss function and metrics as strings, which is possible because `rmsprop`, `binary_crossentropy` and
+
+# We are passing our optimizer, loss function and metrics as strings, which is possible because `rmsprop`, `binary_crossentropy` and 
 # `accuracy` are packaged as part of Keras. Sometimes you may want to configure the parameters of your optimizer, or pass a custom loss 
 # function or metric function. This former can be done by passing an optimizer class instance as the `optimizer` argument:
 
@@ -218,6 +228,7 @@ model.compile(optimizer=optimizers.RMSprop(lr=0.001),
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
+
 # The latter can be done by passing function objects as the `loss` or `metrics` arguments:
 
 # In[14]:
@@ -229,6 +240,7 @@ from keras import metrics
 model.compile(optimizer=optimizers.RMSprop(lr=0.001),
               loss=losses.binary_crossentropy,
               metrics=[metrics.binary_accuracy])
+
 
 # ## Validating our approach
 # 
@@ -244,7 +256,8 @@ partial_x_train = x_train[10000:]
 y_val = y_train[:10000]
 partial_y_train = y_train[10000:]
 
-# We will now train our model for 20 epochs (20 iterations over all samples in the `x_train` and `y_train` tensors), in mini-batches of 512
+
+# We will now train our model for 20 epochs (20 iterations over all samples in the `x_train` and `y_train` tensors), in mini-batches of 512 
 # samples. At this same time we will monitor loss and accuracy on the 10,000 samples that we set apart. This is done by passing the 
 # validation data as the `validation_data` argument:
 
@@ -257,7 +270,8 @@ history = model.fit(partial_x_train,
                     batch_size=512,
                     validation_data=(x_val, y_val))
 
-# On CPU, this will take less than two seconds per epoch -- training is over in 20 seconds. At the end of every epoch, there is a slight pause
+
+# On CPU, this will take less than two seconds per epoch -- training is over in 20 seconds. At the end of every epoch, there is a slight pause 
 # as the model computes its loss and accuracy on the 10,000 samples of the validation data.
 # 
 # Note that the call to `model.fit()` returns a `History` object. This object has a member `history`, which is a dictionary containing data 
@@ -269,7 +283,8 @@ history = model.fit(partial_x_train,
 history_dict = history.history
 history_dict.keys()
 
-# It contains 4 entries: one per metric that was being monitored, during training and during validation. Let's use Matplotlib to plot the
+
+# It contains 4 entries: one per metric that was being monitored, during training and during validation. Let's use Matplotlib to plot the 
 # training and validation loss side by side, as well as the training and validation accuracy:
 
 # In[36]:
@@ -295,10 +310,11 @@ plt.legend()
 
 plt.show()
 
+
 # In[38]:
 
 
-plt.clf()  # clear figure
+plt.clf()   # clear figure
 acc_values = history_dict['acc']
 val_acc_values = history_dict['val_acc']
 
@@ -311,7 +327,8 @@ plt.legend()
 
 plt.show()
 
-#
+
+# 
 # The dots are the training loss and accuracy, while the solid lines are the validation loss and accuracy. Note that your own results may vary 
 # slightly due to a different random initialization of your network.
 # 
@@ -342,10 +359,12 @@ model.compile(optimizer='rmsprop',
 model.fit(x_train, y_train, epochs=4, batch_size=512)
 results = model.evaluate(x_test, y_test)
 
+
 # In[41]:
 
 
 results
+
 
 # Our fairly naive approach achieves an accuracy of 88%. With state-of-the-art approaches, one should be able to get close to 95%.
 
@@ -359,7 +378,8 @@ results
 
 model.predict(x_test)
 
-# As you can see, the network is very confident for some samples (0.99 or more, or 0.01 or less) but less confident for others (0.6, 0.4).
+
+# As you can see, the network is very confident for some samples (0.99 or more, or 0.01 or less) but less confident for others (0.6, 0.4). 
 # 
 
 # ## Further experiments
@@ -389,4 +409,4 @@ model.predict(x_test)
 # about.
 # * As they get better on their training data, neural networks eventually start _overfitting_ and end up obtaining increasingly worse results on data 
 # never-seen-before. Make sure to always monitor performance on data that is outside of the training set.
-#
+# 

@@ -13,9 +13,9 @@
 # ==============================================================================
 
 import keras
-from keras.datasets import mnist
-from keras import models
 from keras import layers
+from keras import models
+from keras.datasets import mnist
 from keras.utils import to_categorical
 
 print(f"keras Version: {keras.__version__}")
@@ -63,7 +63,6 @@ network.add(layers.Dense(10, activation='softmax'))
 network.compile(optimizer='rmsprop',
                 loss='categorical_crossentropy',
                 metrics=['accuracy'])
-
 
 # Before training, we will preprocess our data by reshaping it into the shape that the network expects, and scaling it so that all values are in
 # the `[0, 1]` interval. Previously, our training images for instance were stored in an array of shape `(60000, 28, 28)` of type `uint8` with

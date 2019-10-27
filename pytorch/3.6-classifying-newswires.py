@@ -5,8 +5,8 @@
 
 
 import keras
-
 keras.__version__
+
 
 # # Classifying newswires: a multi-class classification example
 # 
@@ -38,7 +38,8 @@ from keras.datasets import reuters
 
 (train_data, train_labels), (test_data, test_labels) = reuters.load_data(num_words=10000)
 
-#
+
+# 
 # Like with the IMDB dataset, the argument `num_words=10000` restricts the data to the 10,000 most frequently occurring words found in the 
 # data.
 # 
@@ -49,10 +50,12 @@ from keras.datasets import reuters
 
 len(train_data)
 
+
 # In[4]:
 
 
 len(test_data)
+
 
 # As with the IMDB reviews, each example is a list of integers (word indices):
 
@@ -60,6 +63,7 @@ len(test_data)
 
 
 train_data[10]
+
 
 # Here's how you can decode it back to words, in case you are curious:
 
@@ -72,10 +76,12 @@ reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
 # because 0, 1 and 2 are reserved indices for "padding", "start of sequence", and "unknown".
 decoded_newswire = ' '.join([reverse_word_index.get(i - 3, '?') for i in train_data[0]])
 
+
 # In[7]:
 
 
 decoded_newswire
+
 
 # The label associated with an example is an integer between 0 and 45: a topic index.
 
@@ -83,6 +89,7 @@ decoded_newswire
 
 
 train_labels[10]
+
 
 # ## Preparing the data
 # 
@@ -93,13 +100,11 @@ train_labels[10]
 
 import numpy as np
 
-
 def vectorize_sequences(sequences, dimension=10000):
-  results = np.zeros((len(sequences), dimension))
-  for i, sequence in enumerate(sequences):
-    results[i, sequence] = 1.
-  return results
-
+    results = np.zeros((len(sequences), dimension))
+    for i, sequence in enumerate(sequences):
+        results[i, sequence] = 1.
+    return results
 
 # Our vectorized training data
 x_train = vectorize_sequences(train_data)
@@ -117,16 +122,16 @@ x_test = vectorize_sequences(test_data)
 
 
 def to_one_hot(labels, dimension=46):
-  results = np.zeros((len(labels), dimension))
-  for i, label in enumerate(labels):
-    results[i, label] = 1.
-  return results
-
+    results = np.zeros((len(labels), dimension))
+    for i, label in enumerate(labels):
+        results[i, label] = 1.
+    return results
 
 # Our vectorized training labels
 one_hot_train_labels = to_one_hot(train_labels)
 # Our vectorized test labels
 one_hot_test_labels = to_one_hot(test_labels)
+
 
 # Note that there is a built-in way to do this in Keras, which you have already seen in action in our MNIST example:
 
@@ -137,6 +142,7 @@ from keras.utils.np_utils import to_categorical
 
 one_hot_train_labels = to_categorical(train_labels)
 one_hot_test_labels = to_categorical(test_labels)
+
 
 # ## Building our network
 # 
@@ -164,7 +170,8 @@ model.add(layers.Dense(64, activation='relu', input_shape=(10000,)))
 model.add(layers.Dense(64, activation='relu'))
 model.add(layers.Dense(46, activation='softmax'))
 
-#
+
+# 
 # There are two other things you should note about this architecture:
 # 
 # * We are ending the network with a `Dense` layer of size 46. This means that for each input sample, our network will output a 
@@ -184,6 +191,7 @@ model.compile(optimizer='rmsprop',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
+
 # ## Validating our approach
 # 
 # Let's set apart 1,000 samples in our training data to use as a validation set:
@@ -197,6 +205,7 @@ partial_x_train = x_train[1000:]
 y_val = one_hot_train_labels[:1000]
 partial_y_train = one_hot_train_labels[1000:]
 
+
 # Now let's train our network for 20 epochs:
 
 # In[15]:
@@ -207,6 +216,7 @@ history = model.fit(partial_x_train,
                     epochs=20,
                     batch_size=512,
                     validation_data=(x_val, y_val))
+
 
 # Let's display its loss and accuracy curves:
 
@@ -229,10 +239,11 @@ plt.legend()
 
 plt.show()
 
+
 # In[18]:
 
 
-plt.clf()  # clear figure
+plt.clf()   # clear figure
 
 acc = history.history['acc']
 val_acc = history.history['val_acc']
@@ -246,7 +257,8 @@ plt.legend()
 
 plt.show()
 
-# It seems that the network starts overfitting after 8 epochs. Let's train a new network from scratch for 8 epochs, then let's evaluate it on
+
+# It seems that the network starts overfitting after 8 epochs. Let's train a new network from scratch for 8 epochs, then let's evaluate it on 
 # the test set:
 
 # In[27]:
@@ -267,12 +279,14 @@ model.fit(partial_x_train,
           validation_data=(x_val, y_val))
 results = model.evaluate(x_test, one_hot_test_labels)
 
+
 # In[28]:
 
 
 results
 
-#
+
+# 
 # Our approach reaches an accuracy of ~78%. With a balanced binary classification problem, the accuracy reached by a purely random classifier 
 # would be 50%, but in our case it is closer to 19%, so our results seem pretty good, at least when compared to a random baseline:
 
@@ -285,6 +299,7 @@ test_labels_copy = copy.copy(test_labels)
 np.random.shuffle(test_labels_copy)
 float(np.sum(np.array(test_labels) == np.array(test_labels_copy))) / len(test_labels)
 
+
 # ## Generating predictions on new data
 # 
 # We can verify that the `predict` method of our model instance returns a probability distribution over all 46 topics. Let's generate topic 
@@ -295,12 +310,14 @@ float(np.sum(np.array(test_labels) == np.array(test_labels_copy))) / len(test_la
 
 predictions = model.predict(x_test)
 
+
 # Each entry in `predictions` is a vector of length 46:
 
 # In[31]:
 
 
 predictions[0].shape
+
 
 # The coefficients in this vector sum to 1:
 
@@ -309,12 +326,14 @@ predictions[0].shape
 
 np.sum(predictions[0])
 
+
 # The largest entry is the predicted class, i.e. the class with the highest probability:
 
 # In[33]:
 
 
 np.argmax(predictions[0])
+
 
 # ## A different way to handle the labels and the loss
 # 
@@ -326,7 +345,8 @@ np.argmax(predictions[0])
 y_train = np.array(train_labels)
 y_test = np.array(test_labels)
 
-#
+
+# 
 # The only thing it would change is the choice of the loss function. Our previous loss, `categorical_crossentropy`, expects the labels to 
 # follow a categorical encoding. With integer labels, we should use `sparse_categorical_crossentropy`:
 
@@ -334,6 +354,7 @@ y_test = np.array(test_labels)
 
 
 model.compile(optimizer='rmsprop', loss='sparse_categorical_crossentropy', metrics=['acc'])
+
 
 # This new loss function is still mathematically the same as `categorical_crossentropy`; it just has a different interface.
 
@@ -361,7 +382,8 @@ model.fit(partial_x_train,
           batch_size=128,
           validation_data=(x_val, y_val))
 
-#
+
+# 
 # Our network now seems to peak at ~71% test accuracy, a 8% absolute drop. This drop is mostly due to the fact that we are now trying to 
 # compress a lot of information (enough information to recover the separation hyperplanes of 46 classes) into an intermediate space that is 
 # too low-dimensional. The network is able to cram _most_ of the necessary information into these 8-dimensional representations, but not all 
